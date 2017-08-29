@@ -45,7 +45,6 @@
 
 #include <boot_config.h>
 
-
 #include <sys/types.h>
 #include <stdint.h>
 #include <string.h>
@@ -54,7 +53,7 @@
 #include <arch/irq.h>
 #include <arch/board/board.h>
 
-#include "systemlib/px4_macros.h"
+#include "px4_macros.h"
 #include "timer.h"
 #include "nvic.h"
 

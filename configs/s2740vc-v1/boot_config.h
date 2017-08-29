@@ -40,7 +40,6 @@
  * different usages of the hardware for bootloading
  */
 
-
 #pragma once
 
 
@@ -52,7 +51,7 @@
  * todo:make this be pulled in from a targed's build
  * files in nuttx*/
 
-#include "../board_config.h"
+#include "board_config.h"
 #include "uavcan.h"
 #include <nuttx/compiler.h>
 #include <stdint.h>
@@ -60,6 +59,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 #define OPT_PREFERRED_NODE_ID ANY_NODE_ID
 
 //todo:wrap OPT_x in in ifdefs for command line definitions
