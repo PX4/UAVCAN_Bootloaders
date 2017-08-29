@@ -42,15 +42,6 @@ add_custom_command(OUTPUT nuttx_copy.stamp
 set(NUTTX_DIR ${CMAKE_CURRENT_BINARY_DIR}/nuttx)
 set(NUTTX_CONFIG_DIR ${CMAKE_SOURCE_DIR}/configs/${BOARD}/nuttx-config)
 
-# copy apps to build directory
-add_custom_command(OUTPUT apps_copy.stamp
-	COMMAND ${cp_cmd} ${cp_opts} ${CMAKE_CURRENT_SOURCE_DIR}/apps ${CMAKE_CURRENT_BINARY_DIR}
-	COMMAND cmake -E touch apps_copy.stamp
-	DEPENDS ${copy_apps_files}
-	COMMENT "Copying NuttX/apps to ${CMAKE_CURRENT_BINARY_DIR}"
-	)
-set(APPS_DIR ${CMAKE_CURRENT_BINARY_DIR}/apps)
-
 # copy PX4 board config into nuttx
 file(GLOB_RECURSE board_config_files ${NUTTX_CONFIG_DIR})
 add_custom_command(OUTPUT
@@ -71,19 +62,36 @@ add_custom_command(OUTPUT
 		${NUTTX_CONFIG_DIR}/bootloader/defconfig
 		${NUTTX_CONFIG_DIR}/bootloader/Make.defs
 		${board_config_files}
-		nuttx_copy.stamp apps_copy.stamp
+		nuttx_copy.stamp
 	WORKING_DIRECTORY ${NUTTX_DIR}/tools
 	COMMENT "Copying NuttX config ${BOARD} and configuring"
 	)
-add_custom_target(nuttx_configure DEPENDS ${NUTTX_DIR}/.config)
+add_custom_target(nuttx_copy DEPENDS ${NUTTX_DIR}/.config)
+
+set(ARCH_SRC "arch/arm/src")
 
 # context
 add_custom_command(OUTPUT ${NUTTX_DIR}/include/nuttx/version.h ${NUTTX_DIR}/include/nuttx/config.h
-	COMMAND make --no-print-directory --silent context > /dev/null
+	COMMAND make --no-print-directory --silent include/nuttx/config.h > /dev/null
+	COMMAND make --no-print-directory --silent include/nuttx/version.h > /dev/null
+	COMMAND make --no-print-directory --silent include/math.h > /dev/null
+	COMMAND make --no-print-directory --silent include/float.h > /dev/null
+	COMMAND make --no-print-directory --silent include/stdarg.h > /dev/null
+	COMMAND make --no-print-directory --silent include/arch > /dev/null
+	COMMAND make --no-print-directory --silent include/arch/board > /dev/null
+	COMMAND make --no-print-directory --silent include/arch/chip > /dev/null
+
+	COMMAND make --no-print-directory --silent ${ARCH_SRC}/board > /dev/null
+	COMMAND make --no-print-directory --silent ${ARCH_SRC}/chip > /dev/null
+
+	COMMAND make --no-print-directory --silent -C configs dirlinks TOPDIR="${NUTTX_DIR}" > /dev/null
+	COMMAND make --no-print-directory --silent -C configs context TOPDIR="${NUTTX_DIR}" > /dev/null
+	COMMAND make --no-print-directory --silent -C libc context TOPDIR="${NUTTX_DIR}" > /dev/null
+
 	DEPENDS nuttx_configure ${NUTTX_DIR}/.config
 	WORKING_DIRECTORY ${NUTTX_DIR}
 	)
-add_custom_target(nuttx_context DEPENDS ${NUTTX_DIR}/include/nuttx/version.h)
+add_custom_target(nuttx_configure DEPENDS ${NUTTX_DIR}/include/nuttx/version.h)
 
 # library of NuttX libraries
 add_library(nuttx_build INTERFACE)
@@ -91,7 +99,7 @@ add_library(nuttx_build INTERFACE)
 # libboard.a
 add_custom_command(OUTPUT ${NUTTX_DIR}/configs/${BOARD}/src/libboard.a
 	COMMAND make --silent --no-print-directory -C board TOPDIR="${NUTTX_DIR}" libboard.a EXTRADEFINES=-D__KERNEL__ > /dev/null
-	DEPENDS nuttx_context
+	DEPENDS nuttx_configure
 	WORKING_DIRECTORY ${NUTTX_DIR}/arch/arm/src
 	)
 add_custom_target(nuttx_board_build DEPENDS ${NUTTX_DIR}/configs/${BOARD}/src/libboard.a)
@@ -108,7 +116,7 @@ function(add_nuttx_dir nuttx_lib nuttx_lib_dir kernel extra)
 	add_custom_command(OUTPUT ${NUTTX_DIR}/${nuttx_lib_dir}/lib${nuttx_lib}.a
 		COMMAND find ${nuttx_lib_dir} -type f -name *.o -o -name .built -delete
 		COMMAND make -C ${nuttx_lib_dir} -j2 --silent --no-print-directory lib${nuttx_lib}.a TOPDIR="${NUTTX_DIR}" KERNEL=${kernel} EXTRADEFINES=${extra} > /dev/null
-		DEPENDS ${nuttx_lib_files} nuttx_context
+		DEPENDS ${nuttx_lib_files} nuttx_configure
 		WORKING_DIRECTORY ${NUTTX_DIR}
 		)
 	add_custom_target(nuttx_${nuttx_lib}_build DEPENDS ${NUTTX_DIR}/${nuttx_lib_dir}/lib${nuttx_lib}.a)
