@@ -1,1 +1,1 @@
-set(CMAKE_SYSTEM_PROCESSOR "cortex-m4")
+set(CHIP_TYPE "cortex-m4")

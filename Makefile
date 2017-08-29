@@ -38,12 +38,12 @@ endif
 
 all: \
 	esc35-v1 \
+	px4cannode-v1 \
 	px4esc-v1 \
 	px4flow-v2 \
+	s2740vc-v1 \
+	zubaxgnss-v1 \
 	sizes
-	#s2740vc-v1 \
-	#zubaxgnss-v1 \
-	#px4cannode-v1 \
 
 FIRST_ARG := $(firstword $(MAKECMDGOALS))
 ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))

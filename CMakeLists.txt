@@ -6,11 +6,27 @@ endif()
 
 include(configs/${BOARD}/${BOARD}.cmake)
 
-set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL "system processor" FORCE)
+set(CHIP_TYPE ${CHIP_TYPE} CACHE INTERNAL "system processor" FORCE)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/Toolchain-arm-none-eabi.cmake CACHE INTERNAL "toolchain file" FORCE)
 
-project(NuttX_${BOARD}_bootloader LANGUAGES ASM C CXX)
-message(STATUS "NuttX bootloader: " ${BOARD} " " bootloader " " ${CMAKE_SYSTEM_PROCESSOR})
+project(${BOARD}_px4_nuttx_bootloader LANGUAGES ASM C CXX)
+
+message(STATUS "PX4 NuttX bootloader: ${BOARD} ${CHIP_TYPE}")
+
+# CMake build type
+# Debug Release RelWithDebInfo MinSizeRel Coverage
+if (NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE "MinSizeRel" CACHE STRING "Build type" FORCE)
+endif()
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug;Release;RelWithDebInfo;MinSizeRel")
+
+message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 if (CMAKE_HOST_APPLE OR TRUE)
 	# copy with rsync and create file dependencies
@@ -105,6 +121,8 @@ add_custom_command(OUTPUT ${NUTTX_DIR}/configs/${BOARD}/src/libboard.a
 add_custom_target(nuttx_board_build DEPENDS ${NUTTX_DIR}/configs/${BOARD}/src/libboard.a)
 add_library(nuttx_board STATIC IMPORTED GLOBAL)
 set_property(TARGET nuttx_board PROPERTY IMPORTED_LOCATION ${NUTTX_DIR}/configs/${BOARD}/src/libboard.a)
+
+add_dependencies(nuttx_build nuttx_board_build)
 target_link_libraries(nuttx_build INTERFACE nuttx_board)
 
 # helper for all targets
@@ -122,8 +140,8 @@ function(add_nuttx_dir nuttx_lib nuttx_lib_dir kernel extra)
 	add_custom_target(nuttx_${nuttx_lib}_build DEPENDS ${NUTTX_DIR}/${nuttx_lib_dir}/lib${nuttx_lib}.a)
 	add_library(nuttx_${nuttx_lib} STATIC IMPORTED GLOBAL)
 	set_property(TARGET nuttx_${nuttx_lib} PROPERTY IMPORTED_LOCATION ${NUTTX_DIR}/${nuttx_lib_dir}/lib${nuttx_lib}.a)
-	add_dependencies(nuttx_build nuttx_${nuttx_lib}_build)
 
+	add_dependencies(nuttx_build nuttx_${nuttx_lib}_build)
 	target_link_libraries(nuttx_build INTERFACE nuttx_${nuttx_lib})
 endfunction()
 
@@ -135,10 +153,32 @@ add_nuttx_dir(fs fs y -D__KERNEL__)
 add_nuttx_dir(sched sched y -D__KERNEL__)
 add_nuttx_dir(c libc n "")
 
+add_compile_options($<$<COMPILE_LANGUAGE:CXX>:"-std=c99">)
+add_compile_options($<$<COMPILE_LANGUAGE:CXX>:"-std=c++11 -fno-exceptions -fno-rtti -fno-threadsafe-statics">)
+
+# build NuttX stm32_vectors.S
 add_library(nuttx_startup ${CMAKE_SOURCE_DIR}/nuttx/arch/arm/src/stm32/gnu/stm32_vectors.S)
 target_compile_definitions(nuttx_startup PRIVATE -D__ASSEMBLY__)
 add_dependencies(nuttx_startup nuttx_arch_build)
-add_dependencies(nuttx_build nuttx_startup)
+
+add_compile_options(-fvisibility=hidden -include visibility.h
+		-fstrict-aliasing
+		-fomit-frame-pointer
+		-funsafe-math-optimizations
+		-fno-common
+		-ffunction-sections
+		-fdata-sections
+		-fno-strength-reduce
+		-fno-builtin-printf
+		-flto
+
+		-Wall
+		-Wextra
+		-Werror
+
+		-Wno-unused-parameter
+		-Wno-sign-compare
+	)
 
 # Bring in common uavcan hardware identity definitions
 include(${CMAKE_SOURCE_DIR}/cmake/uavcan_board_ident/${BOARD}.cmake)
@@ -147,9 +187,10 @@ add_definitions(
         -DHW_VERSION_MAJOR=${uavcanblid_hw_version_major}
         -DHW_VERSION_MINOR=${uavcanblid_hw_version_minor}
 	-D__PX4_NUTTX
+	-DCONFIG_WCHAR_BUILTIN
+	-D__CUSTOM_FILE_IO__
 )
 
-add_compile_options(-fvisibility=hidden -include visibility.h)
 include_directories(
 	${CMAKE_SOURCE_DIR}/src/include
 	${CMAKE_SOURCE_DIR}/configs/${BOARD}
