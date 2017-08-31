@@ -223,7 +223,7 @@ add_dependencies(${fw_name} drivers_bootloaders ${BOARD})
 target_link_libraries(${fw_name}
 	-T${NUTTX_CONFIG_DIR}/scripts/ld.script
 	-Wl,-Map=${CMAKE_BINARY_DIR}/${BOARD}.map
-	-Wl,-wrap,sched_process_timer -Wl,-wrap,sem_post -Wl,-wrap,sem_wait
+	-Wl,-wrap,sched_process_timer
 	-Wl,--warn-common
 	-Wl,--gc-sections
 	-Wl,--start-group

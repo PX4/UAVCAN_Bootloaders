@@ -2,7 +2,6 @@ add_library(drivers_bootloaders
 		arch/stm32/board_identity.c
 		arch/stm32/drivers/can/driver.c
 		common/boot_app_shared.c
-		common/nuttx_stubs.c
 		fs/flash.c
 		protocol/uavcan.c
 		sched/timer.c
