@@ -191,9 +191,9 @@ add_compile_options(-fvisibility=hidden -include visibility.h
 # Bring in common uavcan hardware identity definitions
 include(${CMAKE_SOURCE_DIR}/cmake/uavcan_board_ident/${BOARD}.cmake)
 add_definitions(
-        -DHW_UAVCAN_NAME=${uavcanblid_name}
-        -DHW_VERSION_MAJOR=${uavcanblid_hw_version_major}
-        -DHW_VERSION_MINOR=${uavcanblid_hw_version_minor}
+		-DHW_UAVCAN_NAME=${uavcanblid_name}
+		-DHW_VERSION_MAJOR=${uavcanblid_hw_version_major}
+		-DHW_VERSION_MINOR=${uavcanblid_hw_version_minor}
 	-D__PX4_NUTTX
 	-DCONFIG_WCHAR_BUILTIN
 	-D__CUSTOM_FILE_IO__
