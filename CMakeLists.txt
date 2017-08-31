@@ -47,9 +47,15 @@ file(GLOB_RECURSE copy_nuttx_files
 	LIST_DIRECTORIES false
 	${CMAKE_CURRENT_SOURCE_DIR}/nuttx/*)
 
-# copy nuttx to build directory
+# copy nuttx to build directory and create a null apps dir
 add_custom_command(OUTPUT nuttx_copy.stamp
 	COMMAND ${cp_cmd} ${cp_opts} ${CMAKE_CURRENT_SOURCE_DIR}/nuttx ${CMAKE_CURRENT_BINARY_DIR}
+	COMMAND mkdir ${CMAKE_CURRENT_BINARY_DIR}/apps || true
+	COMMAND echo 'dirlinks:' > ${CMAKE_CURRENT_BINARY_DIR}/apps/Makefile
+	COMMAND echo 'preconfig:' >> ${CMAKE_CURRENT_BINARY_DIR}/apps/Makefile
+	COMMAND echo 'clean:' >> ${CMAKE_CURRENT_BINARY_DIR}/apps/Makefile
+	COMMAND echo 'distclean:' >> ${CMAKE_CURRENT_BINARY_DIR}/apps/Makefilecontext:
+	COMMAND echo -n > ${CMAKE_CURRENT_BINARY_DIR}/apps/Kconfig
 	COMMAND cmake -E touch nuttx_copy.stamp
 	DEPENDS ${copy_nuttx_files}
 	COMMENT "Copying NuttX/nuttx to ${CMAKE_CURRENT_BINARY_DIR}"
