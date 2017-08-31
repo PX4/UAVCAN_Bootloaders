@@ -240,8 +240,8 @@ target_link_libraries(${fw_name}
 # oldconfig helper
 add_custom_target(oldconfig
 	COMMAND make --no-print-directory -C ${NUTTX_DIR} CONFIG_ARCH_BOARD=${BOARD} oldconfig
-	COMMAND cp ${NUTTX_DIR}/.config ${NUTTX_CONFIG_DIR}/${BOARD}/bootloader/defconfig
-	COMMAND ${CMAKE_SOURCE_DIR}/Tools/nuttx_defconf_tool.sh ${NUTTX_CONFIG_DIR}/${BOARD}/bootloader/defconfig
+	COMMAND cp ${NUTTX_DIR}/.config ${NUTTX_CONFIG_DIR}/bootloader/defconfig
+	COMMAND ${CMAKE_SOURCE_DIR}/Tools/nuttx_defconf_tool.sh ${NUTTX_CONFIG_DIR}/bootloader/defconfig
 	DEPENDS nuttx_configure
 	WORKING_DIRECTORY ${NUTTX_DIR}
 	COMMENT "Running NuttX make oldconfig for ${BOARD} with bootloader"
@@ -251,8 +251,8 @@ add_custom_target(oldconfig
 # menuconfig helper
 add_custom_target(menuconfig
 	COMMAND make --no-print-directory -C ${NUTTX_DIR} CONFIG_ARCH_BOARD=${BOARD} menuconfig
-	COMMAND cp ${NUTTX_DIR}/nuttx/.config ${NUTTX_CONFIG_DIR}/${BOARD}/bootloader/defconfig
-	COMMAND ${CMAKE_SOURCE_DIR}/Tools/nuttx_defconf_tool.sh ${NUTTX_CONFIG_DIR}/${BOARD}/bootloader/defconfig
+	COMMAND cp ${NUTTX_DIR}/.config ${NUTTX_CONFIG_DIR}/bootloader/defconfig
+	COMMAND ${CMAKE_SOURCE_DIR}/Tools/nuttx_defconf_tool.sh ${NUTTX_CONFIG_DIR}/bootloader/defconfig
 	DEPENDS nuttx_configure
 	WORKING_DIRECTORY ${NUTTX_DIR}
 	COMMENT "Running NuttX make menuconfig for ${BOARD} with bootloader"
@@ -262,7 +262,7 @@ add_custom_target(menuconfig
 # qconfig helper
 add_custom_target(qconfig
 	COMMAND make --no-print-directory -C ${NUTTX_DIR} CONFIG_ARCH_BOARD=${BOARD} qconfig
-	COMMAND cp .config ${NUTTX_CONFIG_DIR}/${BOARD}/bootloader/defconfig
+	COMMAND cp ${NUTTX_DIR}/.config ${NUTTX_CONFIG_DIR}/bootloader/defconfig
 	DEPENDS nuttx_configure
 	WORKING_DIRECTORY ${NUTTX_DIR}
 	COMMENT "Running NuttX make qconfig for ${BOARD} with bootloader"
