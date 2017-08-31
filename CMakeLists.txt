@@ -172,6 +172,8 @@ add_compile_options(-fvisibility=hidden -include visibility.h
 		-fno-builtin-printf
 		-flto
 
+		-g
+
 		-Wall
 		-Wextra
 		-Werror
