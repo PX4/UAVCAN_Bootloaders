@@ -170,7 +170,7 @@ add_compile_options(-fvisibility=hidden -include visibility.h
 		-fdata-sections
 		-fno-strength-reduce
 		-fno-builtin-printf
-		-flto
+#		-flto - not usable with debugging
 
 		-g
 
