@@ -101,14 +101,6 @@ ALL_CONFIG_TARGETS := $(basename $(shell find "$(SRC_DIR)/configs" -name '*.cmak
 $(ALL_CONFIG_TARGETS):
 	$(call cmake-build,$@,$(SRC_DIR))
 
-# Abbreviated config targets.
-
-# nuttx_ is left off by default; provide a rule to allow that.
-$(NUTTX_CONFIG_TARGETS):
-	$(call cmake-build,$@,$(SRC_DIR))
-
-all_nuttx_targets: $(NUTTX_CONFIG_TARGETS)
-
 # All targets with just dependencies but no recipe must either be marked as phony (or have the special @: as recipe).
 .PHONY: all sizes
 
@@ -160,11 +152,11 @@ help:
 	@echo "Where <target> is one of:"
 	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | \
 		awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | \
-		egrep -v -e '^[^[:alnum:]]' -e '^($(subst $(space),|,$(ALL_CONFIG_TARGETS) $(NUTTX_CONFIG_TARGETS)))$$' -e '_default$$' -e '^(posix|eagle|Makefile)'
+		egrep -v -e '^[^[:alnum:]]' -e '^($(subst $(space),|,$(ALL_CONFIG_TARGETS)))$$' -e '^(Makefile)'
 	@echo
 	@echo "Or, $(MAKE) <config_target> [<make_target(s)>]"
 	@echo "Use '$(MAKE) list_config_targets' for a list of configuration targets."
 
 # Print a list of all config targets.
 list_config_targets:
-	@for targ in $(ALL_CONFIG_TARGETS)) do echo $$targ; done
+	@for targ in $(ALL_CONFIG_TARGETS); do echo $$targ; done
