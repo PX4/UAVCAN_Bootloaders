@@ -1,6 +1,8 @@
 [submodule "nuttx"]
 	path = nuttx
-	url = git@github.com:PX4-NuttX/nuttx.git
+	url = https://github.com/PX4-NuttX/nuttx.git
+
 [submodule "cmake/uavcan_board_ident"]
 	path = cmake/uavcan_board_ident
-	url = git@github.com:PX4/uavcan_board_ident.git
+	url = https://github.com/PX4/uavcan_board_ident.git
+

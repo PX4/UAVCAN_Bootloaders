@@ -1,0 +1,12 @@
+language: cpp
+
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+      sudo: required
+      services:
+        - docker
+
+script:
+  - docker run -it --rm -w `pwd` --volume=`pwd`:`pwd`:rw --env=LOCAL_USER_ID="$(id -u)" px4io/px4-dev-nuttx:2017-08-29 'make'
